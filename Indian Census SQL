@@ -1,0 +1,139 @@
+SELECT *
+FROM dbo.Data1
+
+SELECT *
+FROM dbo.Data2
+
+--Number of rows in the datasets
+
+SELECT COUNT(*)
+FROM dbo.Data1
+
+SELECT COUNT(*)
+FROM dbo.Data2
+
+--Calculate the Dataset for Jharkhand and Bihar
+
+SELECT *
+FROM dbo.Data1
+WHERE State in ('Jharkhand','Bihar')
+
+--Calculate the population of India
+
+SELECT Sum(population) as Population
+FROM dbo.Data2
+
+--Calculate the average growth of India
+
+SELECT AVG(growth)*100 as Avg_Growth
+FROM dbo.Data1
+
+--Calculate the average growth per state in India
+
+SELECT [State ],
+AVG(growth)*100 as Avg_Growth
+FROM dbo.Data1
+GROUP BY [State ]
+
+--Average Sex Ratio per state
+ 
+SELECT [State ],
+ROUND(AVG(Sex_Ratio),0) as Avg_Sex_Ratio
+FROM dbo.Data1
+GROUP BY [State ]
+ORDER BY Avg_Sex_Ratio DESC
+
+--Average Literacy Rate
+
+SELECT [State ],
+ROUND(AVG(Literacy),0) as Avg_Literacy
+FROM dbo.Data1
+GROUP BY [State ]
+ORDER BY Avg_Literacy DESC
+
+--States that have a literacy rate above 90
+
+SELECT [State ],
+ROUND(AVG(Literacy),0) as Avg_Literacy
+FROM dbo.Data1
+GROUP BY [State ]
+HAVING ROUND(AVG(Literacy),0) > 90
+ORDER BY Avg_Literacy DESC
+
+--Top 3 states with the highest average growth rate
+
+SELECT Top 3 [State ],
+AVG(growth)*100 as Avg_Growth
+FROM dbo.Data1
+GROUP BY [State ]
+ORDER BY Avg_Growth DESC
+
+--Top 3 states with the lowest average sex ration
+
+SELECT Top 3[State ],
+ROUND(AVG(Sex_Ratio),0) as Avg_Sex_Ratio
+FROM dbo.Data1
+GROUP BY [State ]
+ORDER BY Avg_Sex_Ratio ASC
+
+--Top and Bottom 3 literacy rates by state in one table
+
+DROP TABLE IF EXISTS [TopStates];
+CREATE TABLE TopStates
+(state nvarchar(255),
+topstates float
+)
+
+INSERT INTO TopStates
+SELECT [State ],
+ROUND(AVG(Literacy),0) as Avg_Literacy_Rate
+FROM dbo.Data1
+GROUP BY [State ]
+ORDER BY Avg_Literacy_Rate DESC
+
+SELECT TOP 3*
+FROM TopStates
+ORDER BY TopStates.topstates DESC
+
+DROP TABLE IF EXISTS [BottomStates];
+CREATE TABLE BottomStates
+(state nvarchar(255),
+bottomstates float
+)
+
+INSERT INTO BottomStates
+SELECT [State ],
+ROUND(AVG(Literacy),0) as Avg_Literacy_Rate
+FROM dbo.Data1
+GROUP BY [State ]
+ORDER BY Avg_Literacy_Rate DESC
+
+SELECT TOP 3*
+FROM BottomStates
+ORDER BY BottomStates.bottomstates ASC
+
+--Union operater to combine both results
+
+SELECT *
+FROM(
+SELECT TOP 3*
+FROM TopStates
+ORDER BY TopStates.topstates DESC) a
+UNION
+SELECT *
+FROM(
+SELECT TOP 3*
+FROM BottomStates
+ORDER BY BottomStates.bottomstates ASC) b
+
+--States starting with the letter "a" or "b"
+
+SELECT DISTINCT State
+FROM Data1
+WHERE lower(State) LIKE 'a%' or lower(State) LIKE 'b%'
+
+--Looking for States starting with 'a' and ending with 'm'
+
+SELECT DISTINCT State
+FROM Data1
+WHERE lower(State) LIKE 'a%' and lower(State) LIKE '%m'
